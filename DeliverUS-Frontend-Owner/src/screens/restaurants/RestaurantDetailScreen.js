@@ -118,6 +118,9 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const fetchRestaurantDetail = async () => {
     try {
       const fetchedRestaurant = await getDetail(route.params.id)
+      if (!route.params.sortDefault) {
+        fetchedRestaurant.products.sort((a, b) => b.price - a.price)
+      }
       setRestaurant(fetchedRestaurant)
     } catch (error) {
       showMessage({

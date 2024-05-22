@@ -86,6 +86,11 @@ module.exports = {
           },
           key: 'id'
         }
+      },
+      sortDefault: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
       }
     })
   },

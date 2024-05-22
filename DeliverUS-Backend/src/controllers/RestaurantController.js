@@ -70,6 +70,17 @@ const show = async function (req, res) {
   }
 }
 
+const sort = async function (req, res) {
+  try {
+    const restaurant = await Restaurant.findByPk(req.params.restaurantId)
+    restaurant.sortDefault = !restaurant.sortDefault
+    await restaurant.save()
+    res.json(restaurant)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
+
 const update = async function (req, res) {
   try {
     await Restaurant.update(req.body, { where: { id: req.params.restaurantId } })
@@ -101,6 +112,7 @@ const RestaurantController = {
   create,
   show,
   update,
-  destroy
+  destroy,
+  sort
 }
 export default RestaurantController

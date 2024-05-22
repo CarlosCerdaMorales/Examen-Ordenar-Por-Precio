@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { StyleSheet, FlatList, Pressable, View } from 'react-native'
 
-import { getAll, remove } from '../../api/RestaurantEndpoints'
+import { getAll, remove, sort } from '../../api/RestaurantEndpoints'
 import ImageCard from '../../components/ImageCard'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
@@ -32,7 +32,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
         imageUri={item.logo ? { uri: process.env.API_BASE_URL + '/' + item.logo } : restaurantLogo}
         title={item.name}
         onPress={() => {
-          navigation.navigate('RestaurantDetailScreen', { id: item.id })
+          navigation.navigate('RestaurantDetailScreen', { id: item.id, sortDefault: item.sortDefault })
         }}
       >
         <TextRegular numberOfLines={2}>{item.description}</TextRegular>
@@ -75,6 +75,25 @@ export default function RestaurantsScreen ({ navigation, route }) {
             <TextRegular textStyle={styles.text}>
               Delete
             </TextRegular>
+          </View>
+        </Pressable>
+
+        <Pressable
+            onPress={() => { sortRestaurant(item) }}
+            style={({ pressed }) => [
+              {
+                backgroundColor: item.sortDefault ? GlobalStyles.brandSuccessDisabled : GlobalStyles.brandSuccess
+              },
+              styles.actionButton
+            ]}>
+          <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+            <MaterialCommunityIcons name='sort' color={'white'} size={20}/>
+            {item.sortDefault && <View><TextRegular textStyle={styles.text}>
+              Sort by: default
+            </TextRegular></View>}
+            {!item.sortDefault && <View><TextRegular textStyle={styles.text}>
+              Sort by: price
+            </TextRegular></View>}
           </View>
         </Pressable>
         </View>
@@ -153,6 +172,27 @@ export default function RestaurantsScreen ({ navigation, route }) {
     }
   }
 
+  const sortRestaurant = async (restaurant) => {
+    try {
+      await sort(restaurant.id)
+      await fetchRestaurants()
+      showMessage({
+        message: `Restaurant ${restaurant.name} succesfully sorted`,
+        type: 'success',
+        style: GlobalStyles.flashStyle,
+        titleStyle: GlobalStyles.flashTextStyle
+      })
+    } catch (error) {
+      console.log(error)
+      showMessage({
+        message: `Restaurant ${restaurant.name} could not be sorted.`,
+        type: 'error',
+        style: GlobalStyles.flashStyle,
+        titleStyle: GlobalStyles.flashTextStyle
+      })
+    }
+  }
+
   return (
     <>
     <FlatList
@@ -201,7 +241,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     bottom: 5,
     position: 'absolute',
-    width: '90%'
+    width: '63%'
   },
   text: {
     fontSize: 16,
